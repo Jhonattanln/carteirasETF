@@ -1,2 +1,2 @@
-#### Desenvolvimento de carteira de ETFs
-- Modelos de seleção de ETF utilizando Hierarichal Risk Parity
+## Modelo de portfólio usando Hierarchical Risk Parity (HRP)
+
