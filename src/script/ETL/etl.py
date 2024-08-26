@@ -3,16 +3,23 @@ import datetime
 import numpy as np
 import pandas as pd
 
-# Read data from excel file
-df = pd.read_excel('src/data/etf.xlsx', parse_dates=True, index_col=0, skiprows=3)
+# Trasform data class
+class TrasformData:
+    """
+    Class to trasform financial data
+    - Rename columns
+    - Slice data
+    - Clean data
+    """
 
-## Transform data
-# Rename columns
-df.columns = df.columns.str[-6:]
+    def __init__(self):
+        self.etf = None
 
-# Slice data
-data = datetime.datetime.today() - datetime.timedelta(days=365)
-df = df.loc[data:datetime.datetime.today().strftime('%Y-%m-%d')]
-
-# Replace data
-df.replace('-', np.nan, inplace=True)
+    def transform_data(self, file_path):
+        "Funtion to transform data"
+        self.etf = pd.read_excel(file_path, parse_dates=True, index_col=0, skiprows=3)
+        self.etf.columns = self.etf.columns.str[-6:]
+        data = datetime.datetime.today() - datetime.timedelta(days=365)
+        self.etf = self.etf.loc[data:datetime.datetime.today().strftime('%Y-%m-%d')]
+        self.etf.replace('-', np.nan, inplace=True)
+        return self.etf
