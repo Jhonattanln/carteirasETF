@@ -23,3 +23,6 @@ class TrasformData:
         self.etf = self.etf.loc[data:datetime.datetime.today().strftime('%Y-%m-%d')]
         self.etf.replace('-', np.nan, inplace=True)
         return self.etf
+
+transform = TrasformData()
+print(transform.transform_data('src/data/etf.xlsx'))
