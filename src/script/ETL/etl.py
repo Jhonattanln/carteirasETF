@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 # Trasform data class
-class TrasformData:
+class TransformData:
     """
     Class to trasform financial data
     - Rename columns
@@ -24,5 +24,10 @@ class TrasformData:
         self.etf.replace('-', np.nan, inplace=True)
         return self.etf
 
-transform = TrasformData()
-print(transform.transform_data('src/data/etf.xlsx'))
+    def load_data(self):
+        "Function to load data"
+        self.etf.to_excel('src/data/transformed_data.xlsx')
+
+transformer = TransformData()
+transformed_data = transformer.transform_data('src/data/etf.xlsx')
+transformer.load_data()
