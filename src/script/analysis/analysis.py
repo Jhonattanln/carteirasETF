@@ -18,13 +18,15 @@ class Analysis:
         self.droped = None
         self.cleaned_data = None
     
-    def drop_data(self):
+    def manipulate_data(self, cut=0.9):
         self.droped = self.data.dropna(how='all')
-    
-    def select_cut(self, cut=.9):
         count = cut * len(self.droped)
-        self.cleaned_data = self.droped.dropna(axis=1, thresh=count)
-        self.cleaned_data.to_excel('src/data/cleaned.xlsx')
+        self.droped = self.droped.dropna(how='all', thresh=count)
+        return self.droped
+
+    def export_excel(self, file_path):
+        self.droped.to_excel(file_path)
+        return print('Arquivo exportado!')
 
 analysis = Analysis()
 analysis.drop_data()
