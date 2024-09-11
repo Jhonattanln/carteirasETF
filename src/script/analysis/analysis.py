@@ -14,8 +14,9 @@ class Analysis:
     Class to data analysis
     """
     def __init__(self):
-        self.data = pd.read_excel('src/data/transformed_data.xlsx', parse_dates=True, index_col=0)
+        self.data = pd.read_csv('src/data/transformed_data.csv', parse_dates=True, index_col=0)
         self.droped = None
+        self.corr = None
 
     def manipulate_data(self, cut=0.9):
         self.droped = self.data.dropna(how='all')
@@ -23,10 +24,18 @@ class Analysis:
         self.droped = self.droped.dropna(axis=1, thresh=count)
         return self.droped
 
+    def correl_data(self):
+        self.corr = self.droped.corr()
+        plt.figure(figsize=(15, 10))
+        sns.heatmap(self.corr, cmap='coolwarm', vmin=-1, vmax=1)
+        plt.title('Correlação entre ETFs')
+        plt.savefig('images/correlation.png')
+
     def export_excel(self, file_path):
         self.droped.to_csv(file_path)
         return print('Arquivo exportado!')
 
 analysis = Analysis()
 analysis.manipulate_data()
-analysis.export_excel('src/data/etf.csv')
+analysis.correl_data()
+# analysis.export_excel('src/data/etf.csv')
