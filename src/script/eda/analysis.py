@@ -22,6 +22,11 @@ class Analysis:
         self.droped = self.data.dropna(how='all')
         count = cut * len(self.droped)
         self.droped = self.droped.dropna(axis=1, thresh=count)
+        self.droped = self.droped.ffill()
+        self.droped = self.droped.pct_change().dropna()
+        self.droped = self.droped.drop('LFTS11', axis=1)
+        self.droped.to_csv('src/data/returns.csv')
+
         return self.droped
 
     def correl_data(self):
@@ -38,4 +43,4 @@ class Analysis:
 analysis = Analysis()
 analysis.manipulate_data()
 analysis.correl_data()
-# analysis.export_excel('src/data/etf.csv')
+analysis.export_excel('src/data/etf.csv')
