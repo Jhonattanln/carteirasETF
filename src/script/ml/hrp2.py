@@ -62,19 +62,20 @@ class HierarchicalRiskParity:
         self.sort_ix = self._get_quasi_diag(self.link)
         self.sort_ix = self.corr.index[self.sort_ix].tolist()
         self.weights = self._get_recursive_bisection(self.sort_ix)
+        self.weights.to_csv('src/data/weights.csv')
         return self.weights
 
     def plot_corr_matrix(self, title, corr=None):
         if corr is None:
             corr = self.corr
-        plt.figure(figsize=(10, 8))
-        sns.heatmap(corr, annot=True, cmap='coolwarm', vmin=-1, vmax=1, center=0)
+        plt.figure(figsize=(15, 8))
+        sns.heatmap(corr, cmap='coolwarm', vmin=-1, vmax=1, center=0)
         plt.title(title)
         plt.tight_layout()
         plt.savefig('images/hrp_matrix.png')
 
     def plot_dendrogram(self):
-        plt.figure(figsize=(10, 7))
+        plt.figure(figsize=(10, 8))
         hierarchy.dendrogram(self.link, labels=self.returns.columns)
         plt.title('Hierarchical Clustering Dendrogram')
         plt.xlabel('Asset')
@@ -83,7 +84,7 @@ class HierarchicalRiskParity:
         plt.savefig('images/dendogram.png')
 
     def plot_hrp_weights(self):
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(15, 8))
         self.weights.sort_values(ascending=True).plot(kind='bar')
         plt.title('HRP Portfolio Weights')
         plt.xlabel('Asset')
@@ -105,8 +106,6 @@ class HierarchicalRiskParity:
 if __name__ == "__main__":
     # Generate some random return data
     np.random.seed(42)
-    n_assets = 10
-    n_observations = 1000
     returns = pd.read_csv('src/data/returns.csv', sep=',', index_col=0)
 
     # Create HRP object and compute weights

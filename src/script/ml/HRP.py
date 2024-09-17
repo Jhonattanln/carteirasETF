@@ -38,7 +38,7 @@ def getRecBipart(cov, sortIx):
     cItems = [sortIx]
     while len(cItems) > 0:
         cItems = [i[j:k] for i in cItems for j, k in ((0, len(i) / 2), (len(i) / 2, len(i))) if len(i) > 1]
-        for i in xrange(0, len(cItems), 2):
+        for i in range(0, len(cItems), 2):
             cItems0 = cItems[i] #cluster 1
             cItems1 = cItems[i+1] # cluster 2
             cVar0 = getClusterVar(cov, cItems0)
@@ -56,7 +56,7 @@ def correlDist(corr):
 
 def plotCorrMatrix(path, corr, labels=None):
     # Heatmap of correlation matrix
-    if label is None: labels=[]
+    if labels is None: labels=[]
     plt.pcolor(corr)
     plt.colorbar()
     plt.yticks(np.range(.5, corr.shape[0] + .5), labels)
@@ -74,7 +74,7 @@ def generateData(nObs, size0, size1, sigma1):
     x = np.random.normal(0, 1, size=(nObs, size0)) # each row is a variable
 
     # Create a correlated data
-    cols = [random.randint(0, size1) for i in xrange(size1)]
+    cols = [random.randint(0, size1) for i in range(size1)]
     y = x[:, cols] + np.random.normal(0, sigma1, size=(nObs, len(cols)))
     x = np.append(x, y, axis=1)
     x = pd.DataFrame(x, columns=range(1, x.shape[1] + 1))
