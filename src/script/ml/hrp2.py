@@ -1,5 +1,5 @@
 import numpy as np
-import pandas as pd
+import cudf
 from scipy.cluster import hierarchy
 from scipy.spatial.distance import squareform
 import matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ class HierarchicalRiskParity:
 
     def _get_quasi_diag(self, link):
         link = link.astype(int)
-        sort_ix = pd.Series([link[-1, 0], link[-1, 1]])
+        sort_ix = cudf.Series([link[-1, 0], link[-1, 1]])
         num_items = link[-1, 3]
         while sort_ix.max() >= num_items:
             sort_ix.index = range(0, sort_ix.shape[0] * 2, 2)
@@ -28,8 +28,8 @@ class HierarchicalRiskParity:
             i = df0.index
             j = df0.values - num_items
             sort_ix[i] = link[j, 0]
-            df0 = pd.Series(link[j, 1], index=i+1)
-            sort_ix = pd.concat([sort_ix, df0])
+            df0 = cudf.Series(link[j, 1], index=i+1)
+            sort_ix = cudf.concat([sort_ix, df0])
             sort_ix = sort_ix.sort_index()
             sort_ix.index = range(sort_ix.shape[0])
         return sort_ix.tolist()
@@ -41,7 +41,7 @@ class HierarchicalRiskParity:
         return np.dot(np.dot(weights.T, cov_slice), weights)
 
     def _get_recursive_bisection(self, sort_ix):
-        weights = pd.Series(1, index=sort_ix)
+        weights = cudf.Series(1, index=sort_ix)
         clusters = [sort_ix]
         while len(clusters) > 0:
             clusters = [cluster[j:k] for cluster in clusters
@@ -58,7 +58,7 @@ class HierarchicalRiskParity:
         return weights
 
     def compute_hrp(self):
-        self.link = hierarchy.linkage(squareform(self.dist), 'single')
+        self.link = hierarchy.linkage(squareform(self.dist.to_numpy()), 'single')
         self.sort_ix = self._get_quasi_diag(self.link)
         self.sort_ix = self.corr.index[self.sort_ix].tolist()
         self.weights = self._get_recursive_bisection(self.sort_ix)
@@ -94,19 +94,20 @@ class HierarchicalRiskParity:
 
     def get_portfolio_stats(self):
         portfolio_return = (self.returns * self.weights).sum(axis=1)
-        expected_return = portfolio_return.mean() * 252  # Assuming 252 trading days
+        expected_return = portfolio_return.mean() * 252 
         volatility = portfolio_return.std() * np.sqrt(252)
+        risk_free_rate = 0.11
         return {
             'Expected Annual Return': expected_return,
             'Annual Volatility': volatility,
-            'Sharpe Ratio': expected_return / volatility  # Assuming risk-free rate of 0
+            'Sharpe Ratio': (expected_return - risk_free_rate) / volatility
         }
 
 # Example usage
 if __name__ == "__main__":
     # Generate some random return data
     np.random.seed(42)
-    returns = pd.read_csv('src/data/returns.csv', sep=',', index_col=0)
+    returns = cudf.read_csv('src/data/returns.csv', sep=',', index_col=0)
 
     # Create HRP object and compute weights
     hrp = HierarchicalRiskParity(returns)
